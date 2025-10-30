@@ -1,17 +1,25 @@
-# Stay Healthy
+# FitBoost
 
 Remind yourself to take breaks. Stay Healthy!
 ([Video demo](https://youtu.be/F6LZ3om_k1o))
 
 ## Description
 
-I am on my computer all the time. This has had a really bad impact on my eyes and my back. I often used to forget to drink water or take a break. That also meant I used to keep siting for a long time.
+Spending long hours in front of your computer can take a toll on your eyes, posture, and overall health. This Chrome Extension helps you maintain a healthier work routine by reminding you to take short breaks, stand up, stretch, hydrate, and rest your eyes at regular intervals.
 
-That is why I created this Chrome Extension. With the help of this extension, I am reminded to take a break, stand, and look away from the screen every 20 minutes. I choose 20 minutes because that is what Healthline suggests in their "[How Does the 20-20-20 Rule Prevent Eye Strain?](https://www.healthline.com/health/eye-health/20-20-20-rule#:~:text=What's%20the%2020%2D20%2D20,a%20total%20of%2020%20seconds.)" article.
+You can easily customize the reminder interval — for example, every 25 or 30 minutes — to fit your workflow and comfort level.
 
-This Chrome extension can help you not only prevent eye strain but also help you stay hydrated and stand for a bit every 20 minutes. You can, of course, easily tweak the interval as you please with basic customization.
+By using this extension, you can:
 
-**Note:** This extension was originally submitted as my final project for [Harvard's CS50 course](https://cs50.harvard.edu/x).
+👀 Reduce eye strain and fatigue
+
+💧 Stay properly hydrated throughout the day
+
+🪑 Avoid sitting for too long
+
+💪 Maintain better posture and productivity
+
+Stay healthy, stay focused — one mindful break at a time.
 
 ## Getting Started
 
