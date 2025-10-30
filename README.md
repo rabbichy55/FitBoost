@@ -41,26 +41,5 @@ Stay healthy, stay focused — one mindful break at a time.
 * **Step 9:** Click on "Stay Healthy" extension
 * **Step 10:** Click on the "Keep me healthy" button
 
-That's it. You will be reminded to take a break, stand, and look away every 20 minutes.
+That's it. You will be reminded to take a break, stand, and look away every 20 or 25 minutes.
 
-## Help
-
-You can reach out to me if you have any questions
-```
-suraj@surajc.com
-```
-
-## Author
-
-Suraj Chaudhary
-([@SurajCdry](https://twitter.com/surajcdry))
-
-## Version History
-
-* 1.0
-    * Initial commit
-
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details
