@@ -1,4 +1,3 @@
-
 // Request notification permission when extension loads
 chrome.runtime.onInstalled.addListener(() => {
   console.log("FitBoost extension installed");
@@ -40,6 +39,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 function createBreakNotification() {
+  // Create a notification with sound
   const notificationOptions = {
     type: "basic",
     iconUrl: "alarm.png",
@@ -47,32 +47,111 @@ function createBreakNotification() {
     message: "Take a short break! Stand up, stretch, and look away from your screen.",
     priority: 2,
     requireInteraction: true,
+    silent: false, // This ensures sound plays if system allows
     buttons: [
       { title: "Snooze 5 min" },
       { title: "Dismiss" }
     ]
   };
 
-  chrome.notifications.create('fitboost_notification', notificationOptions, (notificationId) => {
+  chrome.notifications.create('fitboost_notification_' + Date.now(), notificationOptions, (notificationId) => {
     if (chrome.runtime.lastError) {
       console.error("Notification error:", chrome.runtime.lastError);
+      // Fallback: try creating a simpler notification
+      createFallbackNotification();
     } else {
       console.log("Notification created successfully:", notificationId);
+      // Play sound programmatically
+      playNotificationSound();
     }
   });
 }
 
+function createFallbackNotification() {
+  // Simpler notification without buttons
+  const fallbackOptions = {
+    type: "basic",
+    iconUrl: "alarm.png",
+    title: "FitBoost - Break Time!",
+    message: "Time to take a break and stretch!",
+    priority: 2,
+    requireInteraction: false,
+    silent: false
+  };
+
+  chrome.notifications.create(fallbackOptions, (notificationId) => {
+    if (chrome.runtime.lastError) {
+      console.error("Fallback notification also failed:", chrome.runtime.lastError);
+    } else {
+      console.log("Fallback notification created:", notificationId);
+      playNotificationSound();
+    }
+  });
+}
+
+function playNotificationSound() {
+  // Create and play notification sound
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+    
+    console.log("Notification sound played");
+  } catch (error) {
+    console.log("Could not play sound:", error);
+    // Fallback: Use browser's speech synthesis
+    speakNotification();
+  }
+}
+
+function speakNotification() {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance("Time for a break!");
+    utterance.volume = 0.7;
+    utterance.rate = 1.0;
+    utterance.pitch = 1.2;
+    speechSynthesis.speak(utterance);
+  }
+}
+
 // Handle notification button clicks
 chrome.notifications.onButtonClicked.addListener((notificationId, buttonIndex) => {
-  if (notificationId === 'fitboost_notification') {
+  if (notificationId.startsWith('fitboost_notification')) {
     if (buttonIndex === 0) {
       // Snooze button clicked - create alarm for 5 minutes
       chrome.alarms.create("fitboost_reminder", {
         delayInMinutes: 5
       });
       console.log("Snoozed for 5 minutes");
+      // Show snooze confirmation
+      chrome.notifications.create({
+        type: "basic",
+        iconUrl: "alarm.png",
+        title: "FitBoost",
+        message: "Break snoozed for 5 minutes",
+        priority: 1
+      });
     }
-    // Dismiss button - notification will close automatically
+    // Close the original notification
+    chrome.notifications.clear(notificationId);
+  }
+});
+
+// Handle notification clicks
+chrome.notifications.onClicked.addListener((notificationId) => {
+  if (notificationId.startsWith('fitboost_notification')) {
     chrome.notifications.clear(notificationId);
   }
 });
@@ -89,6 +168,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           sendResponse({ success: true, message: "No active alarm" });
         }
       });
+      return true;
+    }
+
+    if (request.action === "test_notification") {
+      createBreakNotification();
+      sendResponse({ success: true });
       return true;
     }
 
@@ -137,10 +222,9 @@ function createAlarm(minutes) {
   });
 }
 
-// Test notification function (optional - for debugging)
-function testNotification() {
+// Test function for development
+function testAllFeatures() {
+  console.log("Testing FitBoost features...");
   createBreakNotification();
 }
 
-// Uncomment the line below to test notifications during development
-// testNotification();
