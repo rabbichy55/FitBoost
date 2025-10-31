@@ -1,7 +1,9 @@
 const start = document.getElementById("start");
 const timer = document.getElementById("timer");
 const reset = document.getElementById("reset");
+const test = document.getElementById("test");
 const countdownDisplay = document.getElementById("countdown");
+const statusDisplay = document.getElementById("status");
 
 let countdownInterval;
 
@@ -49,6 +51,15 @@ function updateCountdown() {
   });
 }
 
+function showStatus(message, isError = false) {
+  statusDisplay.textContent = message;
+  statusDisplay.className = isError ? 'status-error' : 'status-message';
+  setTimeout(() => {
+    statusDisplay.textContent = '';
+    statusDisplay.className = 'status-message';
+  }, 3000);
+}
+
 reset.addEventListener("click", () => {
   timer.value = "25";
   chrome.storage.local.remove(["timerValue", "alarmEndTime"]);
@@ -59,7 +70,7 @@ reset.addEventListener("click", () => {
 
   chrome.runtime.sendMessage({ action: "reset" }, (response) => {
     if (response && response.success) {
-      console.log("Timer reset successfully");
+      showStatus("Timer reset successfully");
     }
   });
 });
@@ -68,18 +79,14 @@ start.addEventListener("click", () => {
   const minutes = parseInt(timer.value);
 
   if (isNaN(minutes) || minutes <= 0) {
-    countdownDisplay.textContent = "Please enter a valid time (1-999 minutes)";
-    countdownDisplay.classList.add("error");
+    showStatus("Please enter a valid time (1-999 minutes)", true);
     return;
   }
 
   if (minutes > 999) {
-    countdownDisplay.textContent = "Maximum time allowed is 999 minutes";
-    countdownDisplay.classList.add("error");
+    showStatus("Maximum time allowed is 999 minutes", true);
     return;
   }
-
-  countdownDisplay.classList.remove("error");
 
   // Save timer value when starting
   chrome.storage.local.set({ timerValue: minutes });
@@ -92,16 +99,34 @@ start.addEventListener("click", () => {
       timer.disabled = true;
       updateCountdown();
       start.textContent = "Timer Started";
+      showStatus(`Timer set for ${minutes} minutes`);
       setTimeout(() => {
         start.disabled = false;
-        start.textContent = "Start";
+        start.textContent = "Start Timer";
       }, 2000);
     } else {
       start.disabled = false;
-      start.textContent = "Start";
-      countdownDisplay.textContent = response?.error || "Failed to start timer";
-      countdownDisplay.classList.add("error");
+      start.textContent = "Start Timer";
+      showStatus(response?.error || "Failed to start timer", true);
     }
+  });
+});
+
+test.addEventListener("click", () => {
+  test.disabled = true;
+  test.textContent = "Testing...";
+  
+  chrome.runtime.sendMessage({ action: "test_notification" }, (response) => {
+    if (response && response.success) {
+      showStatus("Test notification sent!");
+    } else {
+      showStatus("Failed to send test notification", true);
+    }
+    
+    setTimeout(() => {
+      test.disabled = false;
+      test.textContent = "Test Notification";
+    }, 2000);
   });
 });
 
