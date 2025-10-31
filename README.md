@@ -1,7 +1,6 @@
 # FitBoost
 
-Remind yourself to take breaks. Stay Healthy!
-([Video demo](https://youtu.be/F6LZ3om_k1o))
+([Video demo](https://youtu.be/9pcToFSSlQ8?si=Puibx7Qw1aSG7SHR))
 
 ## Description
 
