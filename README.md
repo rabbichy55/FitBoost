@@ -35,9 +35,9 @@ Stay healthy, stay focused — one mindful break at a time.
 * **Step 5:** Turn on Developer Mode from the right top corner
 * **Step 6:** Click on "Load Unpacked" from the left-top corner
 * **Step 7:** Select the extension's folder that you just unzipped
-* **Step 8:** Pin the "Stay Healthy" extension by clicking on the extension icon on the right-top of your browser
-* **Step 9:** Click on "Stay Healthy" extension
-* **Step 10:** Click on the "Keep me healthy" button
+* **Step 8:** Pin the "FitBoost" extension by clicking on the extension icon on the right-top of your browser
+* **Step 9:** Click on "FitBoost" extension
+* **Step 10:** Click on the "Start" button
 
-That's it. You will be reminded to take a break, stand, and look away every 20 or 25 minutes.
+That's it. You will be reminded to take a break, stand, and look away every 20 or 25 minutes whatever you prefer.
 
