@@ -1,24 +1,38 @@
 body {
-    margin: auto auto;
-    align-items: center;
-    text-align: center;
-    width: 250px;
-  }
-  
+    margin: 0;
+    padding: 0;
+    width: 280px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 .container {
-    background-color:skyblue;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 20px;
+    color: white;
 }
 
 h2 {
-    margin: 0px 0px 10px 10px;
+    margin: 0 0 15px 0;
     padding: 0;
+    text-align: center;
+    font-size: 1.4em;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
 }
 
 input {
     text-align: center;
-    margin: 10px;
-    padding: 2px;
+    margin: 10px 0;
+    padding: 8px;
+    width: 80px;
+    border: 2px solid #fff;
+    border-radius: 6px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
 }
 
 input[type="number"]:disabled {
@@ -27,69 +41,81 @@ input[type="number"]:disabled {
   opacity: 0.7;
 }
 
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
 button {
-    padding: 8px 16px;
+    padding: 10px 16px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: opacity 0.2s;
-    font-weight: 500;
+    transition: all 0.2s;
+    font-weight: 600;
+    flex: 1;
 }
 
 button:hover {
-  opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 button:active {
-  opacity: 0.8;
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
 }
 
 #start {
     color: white;
-    background-color:green;
+    background-color: #28a745;
 }
 
 #reset {
     color: white;
-    background-color:indianred ;
+    background-color: #dc3545;
 }
 
 .countdown-display {
   margin-top: 15px;
   text-align: center;
-  font-size: 1.2em;
+  font-size: 1.1em;
   min-height: 20px;
-  color: #333;
+  font-weight: 500;
+  padding: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .countdown-active {
-  color: #000000;
+  color: #ffeb3b;
+  background: rgba(255, 235, 59, 0.1);
 }
 
 .countdown-ended {
-    color: #dc3545;
+    color: #ff6b6b;
     font-weight: bold;
-    animation: pulse 1s infinite;
+    animation: pulse 1.5s infinite;
+    background: rgba(255, 107, 107, 0.1);
 }
 
 @keyframes pulse {
     0% { opacity: 1; }
-    50% { opacity: 0.5; }
+    50% { opacity: 0.7; }
     100% { opacity: 1; }
 }
 
 .error {
-  color: #dc3545;
+  color: #ff6b6b;
   font-size: 0.9em;
   margin-top: 5px;
-}
-
-input[type="number"] {
-  width: 80px;
-  height: 30px;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+  text-align: center;
 }
 
 /* Remove spinner arrows from number input */
