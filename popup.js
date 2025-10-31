@@ -3,126 +3,62 @@ const timer = document.getElementById("timer");
 const reset = document.getElementById("reset");
 const test = document.getElementById("test");
 const countdownDisplay = document.getElementById("countdown");
-const statusDisplay = document.getElementById("status");
 
-let countdownInterval;
-
-// Load saved timer value when popup opens
+// Load saved timer value
 chrome.storage.local.get(["timerValue"], (result) => {
   if (result.timerValue) {
     timer.value = result.timerValue;
   }
 });
 
-function updateCountdown() {
-  chrome.storage.local.get(["alarmEndTime"], (result) => {
-    if (!result.alarmEndTime) {
-      clearInterval(countdownInterval);
-      countdownDisplay.textContent = "";
-      countdownDisplay.classList.remove("countdown-active", "countdown-ended");
-      timer.disabled = false;
-      return;
-    }
-
-    const endTime = result.alarmEndTime;
-    
-    clearInterval(countdownInterval);
-    countdownInterval = setInterval(() => {
-      const now = Date.now();
-      const timeLeft = endTime - now;
-
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        countdownDisplay.textContent = "Time for a break!";
-        countdownDisplay.classList.add("countdown-ended");
-        countdownDisplay.classList.remove("countdown-active");
-        timer.disabled = false;
-        return;
-      }
-
-      const minutesLeft = Math.floor(timeLeft / 60000);
-      const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
-
-      countdownDisplay.textContent = `Next break in: ${minutesLeft}m ${secondsLeft}s`;
-      countdownDisplay.classList.add("countdown-active");
-      countdownDisplay.classList.remove("countdown-ended");
-      timer.disabled = true;
-    }, 1000);
-  });
-}
-
-function showStatus(message, isError = false) {
-  statusDisplay.textContent = message;
-  statusDisplay.className = isError ? 'status-error' : 'status-message';
-  setTimeout(() => {
-    statusDisplay.textContent = '';
-    statusDisplay.className = 'status-message';
-  }, 3000);
-}
-
-reset.addEventListener("click", () => {
-  timer.value = "25";
-  chrome.storage.local.remove(["timerValue", "alarmEndTime"]);
-  timer.disabled = false;
-  clearInterval(countdownInterval);
-  countdownDisplay.textContent = "";
-  countdownDisplay.classList.remove("countdown-active", "countdown-ended");
-
-  chrome.runtime.sendMessage({ action: "reset" }, (response) => {
-    if (response && response.success) {
-      showStatus("Timer reset successfully");
-    }
-  });
-});
-
+// Start timer
 start.addEventListener("click", () => {
   const minutes = parseInt(timer.value);
-
-  if (isNaN(minutes) || minutes <= 0) {
-    showStatus("Please enter a valid time (1-999 minutes)", true);
+  
+  if (isNaN(minutes) || minutes < 1 || minutes > 999) {
+    showMessage("Please enter a number between 1-999", true);
     return;
   }
-
-  if (minutes > 999) {
-    showStatus("Maximum time allowed is 999 minutes", true);
-    return;
-  }
-
-  // Save timer value when starting
-  chrome.storage.local.set({ timerValue: minutes });
 
   start.disabled = true;
   start.textContent = "Starting...";
 
   chrome.runtime.sendMessage({ time: minutes }, (response) => {
     if (response && response.success) {
+      // Save the timer value
+      chrome.storage.local.set({ timerValue: minutes });
+      showMessage(`Timer set for ${minutes} minutes!`);
+      start.textContent = "Started!";
       timer.disabled = true;
       updateCountdown();
-      start.textContent = "Timer Started";
-      showStatus(`Timer set for ${minutes} minutes`);
-      setTimeout(() => {
-        start.disabled = false;
-        start.textContent = "Start Timer";
-      }, 2000);
     } else {
+      showMessage(response?.error || "Failed to start timer", true);
       start.disabled = false;
       start.textContent = "Start Timer";
-      showStatus(response?.error || "Failed to start timer", true);
     }
   });
 });
 
+// Reset timer
+reset.addEventListener("click", () => {
+  chrome.runtime.sendMessage({ action: "reset" }, () => {
+    timer.value = "25";
+    timer.disabled = false;
+    chrome.storage.local.set({ timerValue: 25 });
+    start.disabled = false;
+    start.textContent = "Start Timer";
+    countdownDisplay.textContent = "";
+    showMessage("Timer reset");
+  });
+});
+
+// Test notification
 test.addEventListener("click", () => {
   test.disabled = true;
   test.textContent = "Testing...";
   
-  chrome.runtime.sendMessage({ action: "test_notification" }, (response) => {
-    if (response && response.success) {
-      showStatus("Test notification sent!");
-    } else {
-      showStatus("Failed to send test notification", true);
-    }
-    
+  chrome.runtime.sendMessage({ action: "test_notification" }, () => {
+    showMessage("Test notification sent!");
     setTimeout(() => {
       test.disabled = false;
       test.textContent = "Test Notification";
@@ -130,15 +66,61 @@ test.addEventListener("click", () => {
   });
 });
 
-// Check for existing alarm when popup opens
+// Update countdown display
+function updateCountdown() {
+  chrome.storage.local.get(["alarmEndTime"], (result) => {
+    if (!result.alarmEndTime) {
+      countdownDisplay.textContent = "";
+      return;
+    }
+
+    const update = () => {
+      const now = Date.now();
+      const timeLeft = result.alarmEndTime - now;
+
+      if (timeLeft <= 0) {
+        countdownDisplay.textContent = "Time for a break!";
+        countdownDisplay.className = "countdown-ended";
+        timer.disabled = false;
+        start.disabled = false;
+        start.textContent = "Start Timer";
+        return;
+      }
+
+      const minutes = Math.floor(timeLeft / 60000);
+      const seconds = Math.floor((timeLeft % 60000) / 1000);
+      
+      countdownDisplay.textContent = `Next break: ${minutes}m ${seconds}s`;
+      countdownDisplay.className = "countdown-active";
+      setTimeout(update, 1000);
+    };
+
+    update();
+  });
+}
+
+// Show message
+function showMessage(message, isError = false) {
+  countdownDisplay.textContent = message;
+  countdownDisplay.className = isError ? "countdown-error" : "countdown-message";
+  
+  setTimeout(() => {
+    if (!countdownDisplay.textContent.includes("Next break") && 
+        !countdownDisplay.textContent.includes("Time for a break")) {
+      countdownDisplay.textContent = "";
+    }
+  }, 3000);
+}
+
+// Check for existing timer when popup opens
 chrome.alarms.get("fitboost_reminder", (alarm) => {
   if (alarm) {
     timer.disabled = true;
+    start.disabled = true;
+    start.textContent = "Running...";
     updateCountdown();
-  } else {
-    timer.disabled = false;
   }
 });
 
-// Update countdown immediately when popup opens
+// Initial countdown update
 updateCountdown();
